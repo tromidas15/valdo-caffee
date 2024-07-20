@@ -169,6 +169,12 @@
         padding: 10px 0;
     }
 
+    .menu-section h2 .arrow {
+        font-size: 0.8em; /* Make the arrow smaller */
+        transition: transform 0.3s ease;
+        float: right;
+    }
+
     .menu-list li {
         display: flex;
         justify-content: space-between;
@@ -188,7 +194,7 @@
 <script>
     const sheetId = '1hn_rk3Mj5nmkJI5LbxSFmbt7b3QaYb5mlIhXfarjFzA'; // Replace with your Google Sheet ID
     const gid = '0'; // Replace with your Sheet GID
-    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&tq&gid=${gid}`;
+    const url = `https://cors-anywhere.herokuapp.com/https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&tq&gid=${gid}`;
 
     document.addEventListener("DOMContentLoaded", () => {
         const coverImage = document.getElementById('cover-image');
@@ -217,7 +223,6 @@
                 loadingScreen.innerHTML = '<p>Error loading data. Please try again later.</p>';
             });
     });
-
     function displayMenuItems(json) {
         const menuContainer = document.querySelector('.menu-container');
         const items = json.table.rows.map(row => {
@@ -235,7 +240,7 @@
                 section.classList.add('menu-section');
                 section.setAttribute('data-category', itemCategory);
                 section.innerHTML = `
-                    <h2>${itemCategory}</h2>
+                    <h2>${itemCategory} <span class="arrow">&#9660;</span></h2>
                     <ul class="menu-list"></ul>
                 `;
                 menuContainer.appendChild(section);
@@ -250,13 +255,20 @@
         document.querySelectorAll('.menu-section h2').forEach(header => {
             header.addEventListener('click', () => {
                 const list = header.nextElementSibling;
+                const arrow = header.querySelector('.arrow');
                 if (list.classList.contains('open')) {
                     list.classList.remove('open');
+                    arrow.innerHTML = '&#9660;'; // Down arrow
+                    arrow.classList.remove('up');
                 } else {
                     document.querySelectorAll('.menu-list').forEach(menuList => {
                         menuList.classList.remove('open');
+                        menuList.previousElementSibling.querySelector('.arrow').innerHTML = '&#9660;'; // Reset other arrows
+                        menuList.previousElementSibling.querySelector('.arrow').classList.remove('up');
                     });
                     list.classList.add('open');
+                    arrow.innerHTML = '&#9650;'; // Up arrow
+                    arrow.classList.add('up');
                 }
             });
         });
