@@ -7,24 +7,100 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="loading-screen">
-        <div class="spinner"></div>
-    </div>
-    <div class="menu-container" style="display: none;">
-        <div class="logo-container">
-            <div class="logo">
-                <div class="logo-icon">☕</div>
-                <div class="logo-text">Like coffee</div>
+    <!-- Container for the flip effect -->
+    <div class="flip-container">
+        <div class="flipper">
+            <div id="cover-image" class="cover-image">
+                <div class="overlay-text">Apasa pentru a vedea meniul</div>
+            </div>
+            <div id="category-container" class="category-container">
+                <div class="menu-container">
+                    <!-- Categories will be injected here -->
+                </div>
             </div>
         </div>
+    </div>
+
+    <!-- Loading screen -->
+    <div id="loading-screen">
+        <div class="spinner"></div>
     </div>
 </body>
 <style>
     body {
         font-family: Arial, sans-serif;
-        background-color: #f5f5f5;
         margin: 0;
-        padding: 20px;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .flip-container {
+        perspective: 1000px; /* Add perspective to create a 3D effect */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .flipper {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transition: transform 1s;
+        transform-style: preserve-3d;
+    }
+
+    .flipper.flip {
+        transform: rotateY(180deg);
+    }
+
+    #cover-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        background-image: url('./logo.png');
+        background-size: cover;
+        background-position: center;
+        cursor: pointer;
+        z-index: 2000; /* Higher z-index to ensure it's above the menu */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: rotateY(0deg);
+        backface-visibility: hidden;
+    }
+
+    #category-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow-y: auto;
+        transform: rotateY(-180deg);
+        backface-visibility: hidden;
+        z-index: 1000; /* Lower z-index to ensure it's below the cover image */
+    }
+
+    .overlay-text {
+        color: white;
+        font-size: 2em;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+        text-align: center;
+        transition: opacity 1s ease-out;
+        bottom: 0;
+        margin-top: 60vh;
     }
 
     #loading-screen {
@@ -56,17 +132,11 @@
     }
 
     .menu-container {
-        max-width: 600px;
+        width: 70vw;
         margin: 0 auto;
-        background-color: #078c2f;
         padding: 20px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         border-radius: 8px;
-    }
-
-    h1 {
-        text-align: center;
-        color: #333;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .menu-section {
@@ -77,12 +147,26 @@
         border-bottom: 2px solid #ddd;
         padding-bottom: 5px;
         color: white;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .menu-section h2:hover {
+        background-color: rgba(255, 255, 255, 0.1);
     }
 
     .menu-list {
         list-style: none;
         padding: 0;
         margin: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+    }
+
+    .menu-list.open {
+        max-height: 500px; /* Adjust based on expected content height */
+        padding: 10px 0;
     }
 
     .menu-list li {
@@ -99,45 +183,26 @@
     .item-price {
         color: white;
     }
-
-    .logo-container {
-        background-color: #fff;
-        padding: 20px 40px;
-        height: 500px;
-        background-image: url('./logo.jpg');
-        background-size: cover;
-        background-position: center;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .logo {
-        display: flex;
-        align-items: center;
-        font-size: 2em;
-    }
-
-    .logo-icon {
-        margin-right: 15px;
-    }
-
-    .logo-text {
-        font-family: 'Georgia', serif;
-        font-size: 1.5em;
-        color: #3e2723;
-    }
 </style>
+
 <script>
     const sheetId = '1hn_rk3Mj5nmkJI5LbxSFmbt7b3QaYb5mlIhXfarjFzA'; // Replace with your Google Sheet ID
     const gid = '0'; // Replace with your Sheet GID
     const url = `https://cors-anywhere.herokuapp.com/https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&tq&gid=${gid}`;
 
     document.addEventListener("DOMContentLoaded", () => {
+        const coverImage = document.getElementById('cover-image');
+        const categoryContainer = document.getElementById('category-container');
+        const flipper = document.querySelector('.flipper');
         const loadingScreen = document.getElementById('loading-screen');
-        const menuContainer = document.querySelector('.menu-container');
+
+        coverImage.addEventListener('click', () => {
+            flipper.classList.add('flip');
+            setTimeout(() => {
+                coverImage.style.display = 'none'; // Hide cover image
+                categoryContainer.style.display = 'flex'; // Show menu
+            }, 1000); // Match the transition duration
+        });
 
         fetch(url)
             .then(response => response.text())
@@ -146,7 +211,6 @@
                 const json = JSON.parse(jsonString);
                 displayMenuItems(json);
                 loadingScreen.style.display = 'none';
-                menuContainer.style.display = 'block';
             })
             .catch(error => {
                 console.error('Error fetching Google Sheets data:', error);
@@ -170,7 +234,10 @@
                 section = document.createElement('div');
                 section.classList.add('menu-section');
                 section.setAttribute('data-category', itemCategory);
-                section.innerHTML = `<h2>${itemCategory}</h2><ul class="menu-list"></ul>`;
+                section.innerHTML = `
+                    <h2>${itemCategory}</h2>
+                    <ul class="menu-list"></ul>
+                `;
                 menuContainer.appendChild(section);
             }
 
@@ -178,6 +245,22 @@
             itemElement.innerHTML = `<span class="item-name">${itemName}</span><span class="item-price">${itemPrice} LEI</span>`;
             section.querySelector('.menu-list').appendChild(itemElement);
         });
+
+        // Add click event to toggle category visibility
+        document.querySelectorAll('.menu-section h2').forEach(header => {
+            header.addEventListener('click', () => {
+                const list = header.nextElementSibling;
+                if (list.classList.contains('open')) {
+                    list.classList.remove('open');
+                } else {
+                    document.querySelectorAll('.menu-list').forEach(menuList => {
+                        menuList.classList.remove('open');
+                    });
+                    list.classList.add('open');
+                }
+            });
+        });
     }
 </script>
+
 </html>
