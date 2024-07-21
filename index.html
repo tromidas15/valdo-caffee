@@ -302,7 +302,6 @@
                 const jsonString = data.substring(47).slice(0, -2);
                 const json = JSON.parse(jsonString);
                 displayMenuItems(json);
-                loadingScreen.style.display = 'none';
             })
             .catch(error => {
                  loadingScreen.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
