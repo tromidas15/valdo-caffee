@@ -23,7 +23,16 @@
 
     <!-- Loading screen -->
     <div id="loading-screen">
-        <div class="spinner"></div>
+        <div class="coffee-cup">
+            <div class="cup-body"></div>
+            <div class="cup-handle"></div>
+            <div class="coffee"></div>
+            <div class="smoke">
+                <div class="s1"></div>
+                <div class="s2"></div>
+                <div class="s3"></div>
+            </div>
+        </div>
     </div>
 </body>
 <style>
@@ -109,25 +118,102 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(255, 255, 255, 0.8);
+        background-color: black;
         display: flex;
         justify-content: center;
         align-items: center;
         z-index: 9999;
     }
 
-    .spinner {
-        border: 4px solid rgba(0, 0, 0, 0.1);
-        border-left-color: #333;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
+    .coffee-cup {
+        position: relative;
+        width: 60px;
+        height: 80px;
+        margin-top: 12px;
     }
 
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
+    .cup-body {
+        width: 40px;
+        height: 60px;
+        background: #ffffff;
+        border-radius: 0 0 10px 10px;
+        position: absolute;
+        bottom: 0;
+        left: 10px;
+        border: 2px solid #ccc;
+    }
+
+    .cup-handle {
+        width: 20px;
+        height: 30px;
+        border: 5px solid #ffffff;
+        border-radius: 50%;
+        position: absolute;
+        right: -10px;
+        top: 15px;
+        border-width: 5px 5px 5px 5px;
+    }
+
+    .coffee {
+        width: 40px;
+        height: 5px;
+        background: #4b3832;
+        border-radius: 50%;
+        position: absolute;
+        top: 0;
+        left: 10px;
+        margin-top: 12px;
+    }
+
+    .smoke {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        top: -50px;
+        left: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 15px;
+    }
+
+    .smoke div {
+        position: absolute;
+        width: 10px;
+        height: 50px;
+        background: #fff;
+        opacity: 0.5;
+        border-radius: 50%;
+        animation: smoke 2s linear infinite;
+    }
+
+    .smoke .s1 {
+        left: 10px;
+        animation-delay: 0s;
+    }
+
+    .smoke .s2 {
+        left: 20px;
+        animation-delay: 0.5s;
+    }
+
+    .smoke .s3 {
+        left: 30px;
+        animation-delay: 1s;
+    }
+
+    @keyframes smoke {
+        0% {
+            transform: translateY(0) scaleX(1);
+            opacity: 0.5;
+        }
+        50% {
+            transform: translateY(-25px) scaleX(1.5);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-50px) scaleX(2);
+            opacity: 0;
         }
     }
 
@@ -192,8 +278,8 @@
 </style>
 
 <script>
-    const sheetId = '1hn_rk3Mj5nmkJI5LbxSFmbt7b3QaYb5mlIhXfarjFzA'; // Replace with your Google Sheet ID
-    const gid = '0'; // Replace with your Sheet GID
+    const sheetId = '1hn_rk3Mj5nmkJI5LbxSFmbt7b3QaYb5mlIhXfarjFzA';
+    const gid = '0'; 
     const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&tq&gid=${gid}`;
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -219,10 +305,11 @@
                 loadingScreen.style.display = 'none';
             })
             .catch(error => {
-                console.error('Error fetching Google Sheets data:', error);
-                loadingScreen.innerHTML = '<p>Error loading data. Please try again later.</p>';
+                 loadingScreen.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+                 loadingScreen.innerHTML = '<p>Error loading data. Please try again later.</p>';
             });
     });
+
     function displayMenuItems(json) {
         const menuContainer = document.querySelector('.menu-container');
         const items = json.table.rows.map(row => {
